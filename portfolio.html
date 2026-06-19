@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nathan — Cybersecurity Consultant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #08080e;
+    --bg2: #0f0f1a;
+    --bg3: #141420;
+    --cyan: #00e5ff;
+    --cyan-dim: #00b8cc;
+    --cyan-ghost: rgba(0,229,255,0.07);
+    --text: #e8eaf0;
+    --text-muted: #7a7d8a;
+    --text-dim: #4a4d5c;
+    --border: rgba(0,229,255,0.12);
+    --border-dim: rgba(255,255,255,0.05);
+    --mono: 'Share Tech Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.7;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* --- NOISE TEXTURE --- */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  /* --- GRID BACKGROUND --- */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* --- NAV --- */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(8,8,14,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-dim);
+  }
+
+  nav .wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .nav-brand {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--cyan);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-family: var(--mono);
+    letter-spacing: 0.03em;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--cyan); }
+
+  /* --- HERO --- */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 100px 0 80px;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--cyan);
+    letter-spacing: 0.1em;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.5s 0.2s ease forwards;
+  }
+
+  .hero-name {
+    font-size: clamp(44px, 8vw, 80px);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: fadeUp 0.5s 0.35s ease forwards;
+  }
+
+  .hero-name span {
+    color: var(--cyan);
+  }
+
+  .hero-role {
+    font-family: var(--mono);
+    font-size: clamp(16px, 3vw, 22px);
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    height: 1.4em;
+    opacity: 0;
+    animation: fadeUp 0.5s 0.5s ease forwards;
+  }
+
+  .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: var(--cyan);
+    margin-left: 3px;
+    vertical-align: middle;
+    animation: blink 1s step-end infinite;
+  }
+
+  .hero-desc {
+    max-width: 520px;
+    color: var(--text-muted);
+    font-size: 16px;
+    line-height: 1.8;
+    margin-bottom: 48px;
+    opacity: 0;
+    animation: fadeUp 0.5s 0.65s ease forwards;
+  }
+
+  .hero-cta {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeUp 0.5s 0.8s ease forwards;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    font-family: var(--mono);
+    font-size: 13px;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: all 0.2s;
+    cursor: pointer;
+    border: none;
+  }
+
+  .btn-primary {
+    background: var(--cyan);
+    color: #08080e;
+    font-weight: 600;
+  }
+
+  .btn-primary:hover {
+    background: #33ecff;
+    transform: translateY(-1px);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--cyan);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover {
+    background: var(--cyan-ghost);
+    border-color: var(--cyan);
+    transform: translateY(-1px);
+  }
+
+  /* --- SECTION BASE --- */
+  section {
+    padding: 96px 0;
+    border-top: 1px solid var(--border-dim);
+  }
+
+  .section-label {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--cyan);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 48px;
+  }
+
+  /* --- SKILLS --- */
+  .skills-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+  }
+
+  .skill-card {
+    background: var(--bg2);
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    padding: 24px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .skill-card:hover {
+    border-color: var(--border);
+    background: var(--bg3);
+  }
+
+  .skill-card-icon {
+    font-family: var(--mono);
+    font-size: 22px;
+    color: var(--cyan);
+    margin-bottom: 12px;
+  }
+
+  .skill-card h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 8px;
+    letter-spacing: 0.01em;
+  }
+
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--cyan-dim);
+    background: rgba(0,229,255,0.06);
+    border: 1px solid rgba(0,229,255,0.15);
+    padding: 3px 8px;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+  }
+
+  /* --- PROJECTS --- */
+  .projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .project-card {
+    background: var(--bg2);
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    padding: 28px 32px;
+    position: relative;
+    transition: border-color 0.25s, background 0.25s;
+    overflow: hidden;
+  }
+
+  .project-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--cyan);
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .project-card:hover {
+    border-color: var(--border);
+    background: var(--bg3);
+  }
+
+  .project-card:hover::before { opacity: 1; }
+
+  .project-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+
+  .project-name {
+    font-family: var(--mono);
+    font-size: 18px;
+    color: var(--text);
+    font-weight: 400;
+  }
+
+  .project-badge {
+    font-family: var(--mono);
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 3px;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+  }
+
+  .badge-offensive {
+    color: #ff6b6b;
+    background: rgba(255,107,107,0.08);
+    border: 1px solid rgba(255,107,107,0.2);
+  }
+
+  .badge-defensive {
+    color: #69db7c;
+    background: rgba(105,219,124,0.08);
+    border: 1px solid rgba(105,219,124,0.2);
+  }
+
+  .badge-dev {
+    color: var(--cyan-dim);
+    background: var(--cyan-ghost);
+    border: 1px solid var(--border);
+  }
+
+  .project-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  .project-tech {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* --- CONTACT --- */
+  .contact-block {
+    background: var(--bg2);
+    border: 1px solid var(--border-dim);
+    border-radius: 8px;
+    padding: 48px;
+    text-align: center;
+  }
+
+  .contact-block p {
+    color: var(--text-muted);
+    max-width: 440px;
+    margin: 0 auto 36px;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  .contact-links {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 10px 20px;
+    border: 1px solid var(--border-dim);
+    border-radius: 4px;
+    transition: all 0.2s;
+  }
+
+  .contact-link:hover {
+    color: var(--cyan);
+    border-color: var(--border);
+    background: var(--cyan-ghost);
+  }
+
+  /* --- FOOTER --- */
+  footer {
+    padding: 32px 0;
+    border-top: 1px solid var(--border-dim);
+    text-align: center;
+  }
+
+  footer p {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.05em;
+  }
+
+  /* --- ANIMATIONS --- */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+
+  /* --- SCROLL REVEAL --- */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* --- STATUS DOT --- */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    padding: 6px 14px;
+    border: 1px solid var(--border-dim);
+    border-radius: 100px;
+    opacity: 0;
+    animation: fadeUp 0.5s 0.05s ease forwards;
+  }
+
+  .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #69db7c;
+    box-shadow: 0 0 8px rgba(105,219,124,0.6);
+    animation: pulse 2s ease infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+  }
+
+  @media (max-width: 600px) {
+    .hero { padding: 90px 0 60px; }
+    .contact-block { padding: 32px 24px; }
+    .project-card { padding: 24px 20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .reveal { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="nav-brand" href="#">Nathan</a>
+    <ul class="nav-links">
+      <li><a href="#skills">skills</a></li>
+      <li><a href="#projects">projects</a></li>
+      <li><a href="#contact">contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="wrap">
+
+    <!-- HERO -->
+    <section class="hero" id="top">
+      <div class="status">
+        <span class="dot"></span>
+        disponibile per nuove opportunità
+      </div>
+      <p class="hero-eyebrow">// cybersecurity consultant</p>
+      <h1 class="hero-name">Ciao,<br>sono <span>Nathan</span>.</h1>
+      <p class="hero-role" id="typed-role"><span class="cursor"></span></p>
+      <p class="hero-desc">
+        Mi occupo di penetration testing, vulnerability assessment e hardening di reti e applicazioni.
+        Combino background offensivo, difensivo e di sviluppo software.
+      </p>
+      <div class="hero-cta">
+        <a href="#contact" class="btn btn-primary">Contattami</a>
+        <a href="#projects" class="btn btn-secondary">Vedi i progetti &darr;</a>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section id="skills">
+      <p class="section-label">// 01 &mdash; competenze</p>
+      <h2 class="section-title">Cosa so fare</h2>
+      <div class="skills-grid">
+
+        <div class="skill-card reveal">
+          <div class="skill-card-icon">[⚔]</div>
+          <h3>Offensive Security</h3>
+          <p style="font-size:13px; color:var(--text-muted);">Penetration testing su reti, web app e infrastrutture.</p>
+          <div class="skill-tags">
+            <span class="tag">Metasploit</span>
+            <span class="tag">Burp Suite</span>
+            <span class="tag">Nmap</span>
+           
+          </div>
+        </div>
+
+        <div class="skill-card reveal">
+          <div class="skill-card-icon">[🛡]</div>
+          <h3>Defensive Security</h3>
+          <p style="font-size:13px; color:var(--text-muted);">Network hardening, VA e analisi delle superfici d'attacco.</p>
+          <div class="skill-tags">
+            <span class="tag">Vulnerability Assessment</span>
+            <span class="tag">Network Hardening</span>
+            
+          </div>
+        </div>
+
+        <div class="skill-card reveal">
+          <div class="skill-card-icon">[//]</div>
+          <h3>Development</h3>
+          <p style="font-size:13px; color:var(--text-muted);">Tool di sicurezza custom, automazione, applicazioni web.</p>
+          <div class="skill-tags">
+            <span class="tag">Python</span>
+            <span class="tag">Flask</span>
+            <span class="tag">JavaScript</span>
+            <span class="tag">SQL</span>
+          </div>
+        </div>
+
+       
+
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects">
+      <p class="section-label">// 02 &mdash; progetti</p>
+      <h2 class="section-title">Lavori concreti</h2>
+      <div class="projects-list">
+
+        <div class="project-card reveal">
+          <div class="project-header">
+            <span class="project-name">WAPT Automation Framework</span>
+            <span class="project-badge badge-offensive">offensive</span>
+          </div>
+          <p class="project-desc">
+            Framework Python per l'automazione di fasi ricorrenti nel web application penetration testing:
+            scansione, raccolta di header di sicurezza mancanti e generazione
+            di report strutturati. Riduce il tempo operativo sui target ripetitivi.
+          </p>
+          <div class="project-tech">
+            <span class="tag">Python</span>
+            <span class="tag">Requests</span>
+            <span class="tag">Socket</span>
+            <span class="tag">WAPT</span>
+          </div>
+        </div>
+
+        <div class="project-card reveal">
+          <div class="project-header">
+            <span class="project-name">Flask Secure Auth + 2FA</span>
+            <span class="project-badge badge-defensive">defensive</span>
+          </div>
+          <p class="project-desc">
+            Applicazione web che implementa autenticazione sicura con OTP via email, hashing delle
+            password con bcrypt e gestione sessioni. Dimostra principi di secure development:
+            protezione contro brute force, validazione input e separazione dei ruoli.
+          </p>
+          <div class="project-tech">
+            <span class="tag">Python</span>
+            <span class="tag">Flask</span>
+            <span class="tag">bcrypt</span>
+            <span class="tag">OTP</span>
+            <span class="tag">SQL Server</span>
+          </div>
+        </div>
+
+       
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact">
+      <p class="section-label">// 03 &mdash; contatti</p>
+      <h2 class="section-title">Parliamoci</h2>
+      <div class="contact-block reveal">
+        <p>
+          Sono disponibile per collaborazioni, consulenze e posizioni nel settore cybersecurity.
+          Scrivimi o collegati su LinkedIn.
+        </p>
+        <div class="contact-links">
+          <a href="mailto:nathan.temporin@gmail.com" class="contact-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            nathan.temporin@gmail.com
+          </a>
+          <a href="https://www.linkedin.com/in/nathan-temporin-208050192/" target="_blank" rel="noopener" class="contact-link">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg>
+            LinkedIn
+          </a>
+          
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Nathan &mdash; Cybersecurity Consultant &mdash; Legnano, IT &mdash; <span id="year"></span></p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+
+  const roles = [
+    'Penetration Tester',
+    'Vulnerability Assessor',
+    'Security Consultant',
+    'Network Security Specialist'
+  ];
+
+  let roleIndex = 0, charIndex = 0, deleting = false;
+  const el = document.getElementById('typed-role');
+
+  function type() {
+    const current = roles[roleIndex];
+    const display = deleting
+      ? current.substring(0, charIndex--)
+      : current.substring(0, charIndex++);
+
+    el.innerHTML = display + '<span class="cursor"></span>';
+
+    let delay = deleting ? 40 : 80;
+
+    if (!deleting && charIndex > current.length) {
+      delay = 1800;
+      deleting = true;
+    } else if (deleting && charIndex < 0) {
+      deleting = false;
+      charIndex = 0;
+      roleIndex = (roleIndex + 1) % roles.length;
+      delay = 400;
+    }
+
+    setTimeout(type, delay);
+  }
+
+  setTimeout(type, 1200);
+
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
